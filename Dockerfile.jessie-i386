@@ -1,0 +1,16 @@
+FROM i386/debian:jessie
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Configure archived Jessie repositories and install minimal build tools
+RUN set -eux; \
+		printf 'deb http://archive.debian.org/debian jessie main contrib non-free\n' > /etc/apt/sources.list; \
+		printf 'deb http://archive.debian.org/debian-security jessie/updates main\n' >> /etc/apt/sources.list; \
+		printf 'Acquire::Check-Valid-Until "false";\nAcquire::AllowInsecureRepositories "true";\n' > /etc/apt/apt.conf.d/99no-check-valid-until; \
+		apt-get -o Acquire::AllowInsecureRepositories=true -o Acquire::Check-Valid-Until=false update; \
+		apt-get -o Acquire::AllowInsecureRepositories=true -o Acquire::Check-Valid-Until=false --allow-unauthenticated install -y --no-install-recommends \
+			build-essential ca-certificates pkg-config git wget; \
+		rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+CMD ["/bin/bash"]
